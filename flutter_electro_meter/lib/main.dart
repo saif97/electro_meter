@@ -2,9 +2,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
+import 'firebase_options.dart';
+
 void main() async {
   runApp(ScreenLanding());
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
 
@@ -64,10 +66,10 @@ class __MainState extends State<_Main> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CText("Current: ${electricData['current']}"),
-            CText("Voltage: ${electricData['voltage']}"),
-            CText("Frequency: ${electricData['frequency']}"),
-            CText("Power: ${electricData['power']}"),
+            CText("Current: ${electricData['current']} A"),
+            CText("Voltage: ${electricData['voltage']} V"),
+            CText("Frequency: ${electricData['frequency']} Hz"),
+            CText("Power: ${electricData['power']} W"),
             CText("Energy: ${electricData['energy']}"),
             CText("Power Factor: ${electricData['pf']}"),
           ],
@@ -77,12 +79,10 @@ class __MainState extends State<_Main> {
   }
 
   retrieveData() {
-    final DatabaseReference db = FirebaseDatabase(app: Firebase.app()).reference();
-    db.child('stats').onValue.listen((Event event) {
-      setState(() {
-        electricData = Map.from(event.snapshot.value);
-      });
-    });
+    final db = FirebaseDatabase.instance;
+    db.ref('stats').onValue.listen(
+          (event) => setState(() => electricData = event.snapshot.value as Map<String, dynamic>),
+        );
   }
 }
 
